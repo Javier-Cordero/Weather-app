@@ -3,8 +3,24 @@ import { Image } from 'primereact/image';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { useState } from 'react';
-export const Header = ({ handleGetLocation,temperature,description,city }) => {
+import axios from 'axios';
+export const Header = ({ handleGetLocation, setLocation, temperature, description, city }) => {
     const [visible, setVisible] = useState(false)
+    const [cityInput, setCityInput] = useState('')
+    const [direct, setDirect] = useState('')
+    const handleInput = async () => {
+        const rs = await axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${cityInput}&limit=10&appid=bd9dc44134d81a9ff53c6b13a921e023`)
+        const search = rs.data
+        const filtered = search.map(result => ({
+            name: result.name,
+            country: result.country
+        }));
+        setDirect(filtered)
+    }
+    const handleSelect = (location) => {
+        setLocation(location);
+        setVisible(false);
+    };
     const today = new Date();
     const options = { weekday: 'short', month: 'short', day: 'numeric' };
     const formatDate = today.toLocaleString('en-EN', options);
@@ -35,8 +51,11 @@ export const Header = ({ handleGetLocation,temperature,description,city }) => {
             </header>
             <Dialog visible={visible} className='bg-[#1E213A] absolute left-0 top-0 w-screen h-[600px] lg:w-[30%]' onHide={() => { if (!visible) return; setVisible(false); }}>
                 <div className='flex flex-wrap gap-4 justify-center'>
-                    <InputText type="search" placeholder="search location" className='h-10 w-[60%] pl-5' />
-                    <Button label="Search" className='bg-[#3C47E9] h-10 w-[30%]' />
+                    <InputText value={cityInput} onChange={(e) => setCityInput(e.target.value)} type="search" placeholder="search location" className='h-10 w-[60%] pl-5' />
+                    <Button label="Search" onClick={handleInput} className='bg-[#3C47E9] h-10 w-[30%]' />
+                </div>
+                <div className='mx-2 my-4'>
+                    {direct.length > 0 ? (<div className='grid gap-5'>{direct.map((dato, i) => (<p key={i} onClick={() => handleSelect(dato.name)} className='border h-16 w-[310px] flex items-center pl-5'>{`${dato.name}, ${dato.country}`}</p>))}</div>) : (<p>{''}</p>)}
                 </div>
             </Dialog>
         </>

@@ -7,25 +7,25 @@ export default function App() {
   const [error, setError] = useState(null)
   const [location, setLocation] = useState('London')
   const [units, setUnits] = useState('metric')
-  const [weather, setWeather] = useState(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=${units}&lang=en`)
-  const [forecast, setForecast] = useState(`https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=${units}&lang=en`);
-  const [pronostico, setPronostico] = useState({})
   const [clima, setClima] = useState({})
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setWeather(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
-          setForecast(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
+          setLocation({ lat: latitude, lon: longitude });
+          // setWeather(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
+          // setForecast(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
         }, (error) => { setError(error.message) }
       );
     } else setError('Geolocation is not supported by this browser.')
   };
   const fetchWeatherData = async () => {
-    const rs = await axios.get(weather)
+    let url;
+    if (typeof location === 'string') url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=${units}&lang=en`
+    else url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
+    const rs = await axios.get(url)
     setClima({
-      id: rs.data.weather[0].id,
       icon: rs.data.weather[0].icon,
       temperature: Math.round(rs.data.main.temp),
       description: rs.data.weather[0].description,
@@ -37,11 +37,11 @@ export default function App() {
       air: rs.data.main.pressure
     })
   }
-  useEffect(() => { fetchWeatherData() }, [weather, units]);
+  useEffect(() => { fetchWeatherData() }, [location, units]);
   return (
     <div className="w-screen lg:flex">
-      <Header handleGetLocation={handleGetLocation} temperature={clima.temperature} description={clima.description} city={clima.city} />
-      <Container setUnits={setUnits} pronostico={pronostico} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
+      <Header handleGetLocation={handleGetLocation} setLocation={setLocation} temperature={clima.temperature} description={clima.description} city={clima.city} />
+      <Container setUnits={setUnits} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
     </div>
   )
 }

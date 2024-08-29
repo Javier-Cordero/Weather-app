@@ -1,7 +1,6 @@
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
-export const Container = ({ setUnits, pronostico, windSpeed, windDegree, humidity, visibility, air }) => {
-    console.log(pronostico)
+export const Container = ({ setUnits, windSpeed, windDegree, humidity, visibility, air }) => {
     const handleCelcius = () => { setUnits('metric') }
     const handleFahrenheit = () => { setUnits('imperial') }
     const getWindDirection = (degree) => {
@@ -16,16 +15,6 @@ export const Container = ({ setUnits, pronostico, windSpeed, windDegree, humidit
                 <Button label="°F" rounded onClick={handleFahrenheit} className='bg-[#585676] size-7' />
             </section>
             <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='bg-transparent py-5 font-500 text-base lg:px-14'>
-                {/* {pronostico.map(dia=>(
-                    <div key={dia.id} className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>{dia.day}</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div>
-                ))} */}
                 <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
                     <span>Tomorow</span>
                     <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
