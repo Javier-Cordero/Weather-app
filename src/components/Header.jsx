@@ -4,7 +4,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { useState } from 'react';
 import axios from 'axios';
-export const Header = ({ handleGetLocation, setLocation, temperature, description, city }) => {
+export const Header = ({ handleGetLocation, setLocation, simbolo, icon, temperature, description, city }) => {
     const [visible, setVisible] = useState(false)
     const [cityInput, setCityInput] = useState('')
     const [direct, setDirect] = useState('')
@@ -33,11 +33,11 @@ export const Header = ({ handleGetLocation, setLocation, temperature, descriptio
                 </div>
                 <div className='w-full h-[30%] flex items-center justify-center relative'>
                     <img className='w-full h-full opacity-5 object-cover' src='Cloud-background.png' alt="Cloud background" />
-                    <img className='size-[40%] absolute' src='Shower.png' alt="Weather icon" />
+                    <img className='size-[40%] absolute' src={icon} alt="Weather icon" />
                 </div>
                 <div className='w-full h-[20%] flex justify-center items-center font-500'>
                     <span className='text-8xl'>{temperature}</span>
-                    <span className='text-5xl'>°C</span>
+                    <span className='text-5xl'>{simbolo}</span>
                 </div>
                 <div className='w-full h-[15%] flex justify-center items-center'>
                     <span className='text-4xl font-600 text-[#88869D]'>{description}</span>

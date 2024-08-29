@@ -1,8 +1,14 @@
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
-export const Container = ({ setUnits, windSpeed, windDegree, humidity, visibility, air }) => {
-    const handleCelcius = () => { setUnits('metric') }
-    const handleFahrenheit = () => { setUnits('imperial') }
+export const Container = ({ setUnits, setSimbolo, simbolo, windSpeed, windDegree, humidity, visibility, air }) => {
+    const handleCelcius = () => {
+        setUnits('metric')
+        setSimbolo('°C')
+    }
+    const handleFahrenheit = () => {
+        setUnits('imperial')
+        setSimbolo('°F')
+    }
     const getWindDirection = (degree) => {
         const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
         const index = Math.round(degree / 22.5) % 16;

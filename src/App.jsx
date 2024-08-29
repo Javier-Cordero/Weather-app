@@ -7,15 +7,34 @@ export default function App() {
   const [error, setError] = useState(null)
   const [location, setLocation] = useState('London')
   const [units, setUnits] = useState('metric')
+  const [simbolo, setSimbolo] = useState('°C')
   const [clima, setClima] = useState({})
+  const iconMap = {
+    '01d': 'Clear.png',
+    '01n': 'Clear.png',
+    '02d': 'LightCloud.png',
+    '02n': 'LightCloud.png',
+    '03d': 'HeavyCloud.png',
+    '03n': 'HeavyCloud.png',
+    '04d': 'HeavyRain.png',
+    '04n': 'HeavyRain.png',
+    '09d': 'LightRain.png',
+    '09n': 'LightRain.png',
+    '10d': 'Shower.png',
+    '10n': 'Shower.png',
+    '11d': 'Thunderstorm.png',
+    '11n': 'Thunderstorm.png',
+    '13d': 'Snow.png',
+    '13n': 'Snow.png',
+    '50d': 'Hail.png',
+    '50n': 'Hail.png',
+};
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ lat: latitude, lon: longitude });
-          // setWeather(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
-          // setForecast(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=${units}&lang=en`)
         }, (error) => { setError(error.message) }
       );
     } else setError('Geolocation is not supported by this browser.')
@@ -26,7 +45,7 @@ export default function App() {
     else url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
     const rs = await axios.get(url)
     setClima({
-      icon: rs.data.weather[0].icon,
+      icon: iconMap[rs.data.weather[0].icon],
       temperature: Math.round(rs.data.main.temp),
       description: rs.data.weather[0].description,
       city: rs.data.name,
@@ -40,8 +59,8 @@ export default function App() {
   useEffect(() => { fetchWeatherData() }, [location, units]);
   return (
     <div className="w-screen lg:flex">
-      <Header handleGetLocation={handleGetLocation} setLocation={setLocation} temperature={clima.temperature} description={clima.description} city={clima.city} />
-      <Container setUnits={setUnits} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
+      <Header handleGetLocation={handleGetLocation} setLocation={setLocation} simbolo={simbolo} icon={clima.icon} temperature={clima.temperature} description={clima.description} city={clima.city} />
+      <Container setUnits={setUnits} setSimbolo={setSimbolo} simbolo={simbolo} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
     </div>
   )
 }
