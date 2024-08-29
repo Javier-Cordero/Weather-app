@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
-export const Container = ({ setUnits, setSimbolo, simbolo, pronostico, windSpeed, windDegree, humidity, visibility, air }) => {
-    console.log(pronostico)
+import axios from 'axios';
+const apiKey = 'bd9dc44134d81a9ff53c6b13a921e023';
+export const Container = ({ units, setUnits, location, setSimbolo, simbolo, iconMap, windSpeed, windDegree, humidity, visibility, air }) => {
+    const [pronostico, setProtonostico] = useState([])
     const handleCelcius = () => {
         setUnits('metric')
         setSimbolo('°C')
@@ -15,6 +18,42 @@ export const Container = ({ setUnits, setSimbolo, simbolo, pronostico, windSpeed
         const index = Math.round(degree / 22.5) % 16;
         return directions[index];
     };
+    const fetchForecastData = async () => {
+        try {
+            const url = typeof location === 'string'
+                ? `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=${units}&lang=en`
+                : `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
+            const rs = await axios.get(url);
+            const data = rs.data.list;
+            if (!Array.isArray(data)) throw new Error('Unexpected data format')
+            const nextDay = new Date();
+            nextDay.setDate(nextDay.getDate() + 1);
+            const nextDayStr = nextDay.toISOString().split('T')[0];
+            const dailyData = {};
+            data.forEach(item => {
+                const date = new Date(item.dt * 1000).toISOString().split('T')[0];
+                if (date >= nextDayStr) {
+                    if (!dailyData[date]) {
+                        dailyData[date] = {
+                            day: formatDate(item.dt_txt),
+                            icon: iconMap[item.weather[0].icon],
+                            temp_min: Math.round(item.main.temp_min),
+                            temp_max: Math.round(item.main.temp_max),
+                        };
+                    }
+                }
+            });
+
+            setProtonostico(Object.values(dailyData) || []);
+        } catch (error) {console.error('Error fetching forecast data:', error.message);}
+    };
+
+    function formatDate(date) {
+        const today = new Date(date);
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        return today.toLocaleString('en-EN', options);
+    }
+    useEffect(() => { fetchForecastData() }, [location, units]);
     return (
         <main className='bg-[#100E1D] w-screen h-[1360px] lg:w-[70%] lg:h-screen'>
             <section className='h-12 lg:flex lg:justify-end items-center gap-5 pr-20 text-lg lg:font-700 hidden'>
@@ -32,46 +71,6 @@ export const Container = ({ setUnits, setSimbolo, simbolo, pronostico, windSpeed
                         </div>
                     </div>
                 ))}
-                {/* <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>Tomorow</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div>
-                <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>Tomorow</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div>
-                <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>Tomorow</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div>
-                <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>Tomorow</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div>
-                <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                    <span>Tomorow</span>
-                    <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
-                    <div className='flex justify-between'>
-                        <span>16°C</span>
-                        <span>11°C</span>
-                    </div>
-                </div> */}
             </section>
             <h1 className='text-2xl font-700 h-8 flex items-center pl-[6%]'>Today’s Hightlights</h1>
             <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='w-full bg-transparent py-5'>
