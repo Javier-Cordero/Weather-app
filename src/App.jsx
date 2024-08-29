@@ -9,6 +9,7 @@ export default function App() {
   const [units, setUnits] = useState('metric')
   const [simbolo, setSimbolo] = useState('°C')
   const [clima, setClima] = useState({})
+  const [pronostico, setProtonostico] = useState({})
   const iconMap = {
     '01d': 'Clear.png',
     '01n': 'Clear.png',
@@ -28,39 +29,72 @@ export default function App() {
     '13n': 'Snow.png',
     '50d': 'Hail.png',
     '50n': 'Hail.png',
-};
+  };
   const handleGetLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ lat: latitude, lon: longitude });
-        }, (error) => { setError(error.message) }
-      );
-    } else setError('Geolocation is not supported by this browser.')
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setLocation({ lat: latitude, lon: longitude });
+          }, (error) => { setError(error.message) }
+        );
+      } else setError('Geolocation is not supported by this browser.')
+    } catch (error) { setError(error.message) }
   };
   const fetchWeatherData = async () => {
-    let url;
-    if (typeof location === 'string') url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=${units}&lang=en`
-    else url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
-    const rs = await axios.get(url)
-    setClima({
-      icon: iconMap[rs.data.weather[0].icon],
-      temperature: Math.round(rs.data.main.temp),
-      description: rs.data.weather[0].description,
-      city: rs.data.name,
-      windSpeed: rs.data.wind.speed,
-      windDegree: rs.data.wind.deg,
-      humidity: rs.data.main.humidity,
-      visibility: rs.data.visibility,
-      air: rs.data.main.pressure
-    })
+    try {
+      const url = typeof location === 'string' ? `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=${units}&lang=en` : `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
+      const rs = await axios.get(url)
+      setClima({
+        icon: iconMap[rs.data.weather[0].icon],
+        temperature: Math.round(rs.data.main.temp),
+        description: rs.data.weather[0].description,
+        city: rs.data.name,
+        windSpeed: rs.data.wind.speed,
+        windDegree: rs.data.wind.deg,
+        humidity: rs.data.main.humidity,
+        visibility: rs.data.visibility,
+        air: rs.data.main.pressure
+      })
+    } catch (error) { setError(error.message) }
+  }
+  const fetchForecastData = async () => {
+    try {
+      const url = typeof location === 'string' ? `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=${units}&lang=en` : `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=${units}&lang=en`;
+      const rs = await axios.get(url)
+      const data = rs.data.list
+      const nextDay = new Date();
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextDayStr = nextDay.toISOString().split('T')[0];
+      const dailyData = {};
+      data.forEach(item => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0];
+        if (date >= nextDayStr) {
+          if (!dailyData[date]) {
+            dailyData[date] = {
+              day: formatDate(item.dt_txt),
+              icon: iconMap[item.weather[0].icon],
+              temp_min: Math.round(item.main.temp_min),
+              temp_max: Math.round(item.main.temp_max)
+            }
+          }
+        }
+      });
+      setProtonostico(Object.values(dailyData) || []);
+    } catch (error) { setError(error.message) }
   }
   useEffect(() => { fetchWeatherData() }, [location, units]);
+  useEffect(() => { fetchForecastData() }, [location, units]);
+  function formatDate(date) {
+    const today = new Date(date);
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    return today.toLocaleString('en-EN', options);
+  }
   return (
     <div className="w-screen lg:flex">
       <Header handleGetLocation={handleGetLocation} setLocation={setLocation} simbolo={simbolo} icon={clima.icon} temperature={clima.temperature} description={clima.description} city={clima.city} />
-      <Container setUnits={setUnits} setSimbolo={setSimbolo} simbolo={simbolo} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
+      <Container setUnits={setUnits} setSimbolo={setSimbolo} simbolo={simbolo} pronostico={pronostico} windSpeed={clima.windSpeed} windDegree={clima.windDegree} humidity={clima.humidity} visibility={clima.visibility} air={clima.air} />
     </div>
   )
 }

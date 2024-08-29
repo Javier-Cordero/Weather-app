@@ -1,6 +1,7 @@
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
-export const Container = ({ setUnits, setSimbolo, simbolo, windSpeed, windDegree, humidity, visibility, air }) => {
+export const Container = ({ setUnits, setSimbolo, simbolo, pronostico, windSpeed, windDegree, humidity, visibility, air }) => {
+    console.log(pronostico)
     const handleCelcius = () => {
         setUnits('metric')
         setSimbolo('°C')
@@ -21,7 +22,17 @@ export const Container = ({ setUnits, setSimbolo, simbolo, windSpeed, windDegree
                 <Button label="°F" rounded onClick={handleFahrenheit} className='bg-[#585676] size-7' />
             </section>
             <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='bg-transparent py-5 font-500 text-base lg:px-14'>
-                <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
+                {pronostico.map((day, index) => (
+                    <div key={index} className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
+                        <span className='mx-auto'>{day.day}</span>
+                        <Image src={day.icon} alt='icono del clima' width='40' className='mx-auto' />
+                        <div className='flex justify-between gap-4'>
+                            <span>{`${day.temp_max}${simbolo}`}</span>
+                            <span>{`${day.temp_min}${simbolo}`}</span>
+                        </div>
+                    </div>
+                ))}
+                {/* <div className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
                     <span>Tomorow</span>
                     <Image src='Shower.png' alt='icono del clima' width='40' className='mx-auto' />
                     <div className='flex justify-between'>
@@ -60,7 +71,7 @@ export const Container = ({ setUnits, setSimbolo, simbolo, windSpeed, windDegree
                         <span>16°C</span>
                         <span>11°C</span>
                     </div>
-                </div>
+                </div> */}
             </section>
             <h1 className='text-2xl font-700 h-8 flex items-center pl-[6%]'>Today’s Hightlights</h1>
             <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='w-full bg-transparent py-5'>
