@@ -43,7 +43,7 @@ export const Header = ({ handleGetLocation, setLocation, simbolo, icon, temperat
                     <span className='text-4xl font-600 text-[#88869D]'>{description}</span>
                 </div>
                 <div className='w-full h-[13%] flex justify-center items-center'>
-                    <span className='font-500 text-lg text-[#88869D]'>{`Today • ${formatDate}`}</span>
+                    <time className='font-500 text-lg text-[#88869D]'>{`Today • ${formatDate}`}</time>
                 </div>
                 <div className='w-full h-[8%] flex justify-center items-center text-lg'>
                     <span className='pi pi-map-marker h-[20%]'>{city}</span>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
-import { Image } from 'primereact/image';
 import axios from 'axios';
+import { Convert } from './Convert'
+import { ForecastCard } from './ForecastCard'
+import { WeatherCard } from './WeatherCard';
 const apiKey = 'bd9dc44134d81a9ff53c6b13a921e023';
 export const Container = ({ units, setUnits, location, setSimbolo, simbolo, iconMap, windSpeed, windDegree, humidity, visibility, air }) => {
     const [pronostico, setProtonostico] = useState([])
@@ -45,7 +46,7 @@ export const Container = ({ units, setUnits, location, setSimbolo, simbolo, icon
             });
 
             setProtonostico(Object.values(dailyData) || []);
-        } catch (error) {console.error('Error fetching forecast data:', error.message);}
+        } catch (error) { console.error('Error fetching forecast data:', error.message); }
     };
 
     function formatDate(date) {
@@ -56,23 +57,9 @@ export const Container = ({ units, setUnits, location, setSimbolo, simbolo, icon
     useEffect(() => { fetchForecastData() }, [location, units]);
     return (
         <main className='bg-[#100E1D] w-screen h-[1360px] lg:w-[70%] lg:h-screen'>
-            <section className='h-12 lg:flex lg:justify-end items-center gap-5 pr-20 text-lg lg:font-700 hidden'>
-                <Button label="°C" rounded onClick={handleCelcius} className='bg-[#E7E7EB] size-7 text-[#110E3C]' />
-                <Button label="°F" rounded onClick={handleFahrenheit} className='bg-[#585676] size-7' />
-            </section>
-            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='bg-transparent py-5 font-500 text-base lg:px-14'>
-                {pronostico.map((day, index) => (
-                    <div key={index} className='rounded-lg w-[120px] h-[160px] bg-[#1E213A] grid place-content-center gap-2'>
-                        <span className='mx-auto'>{day.day}</span>
-                        <Image src={day.icon} alt='icono del clima' width='40' className='mx-auto' />
-                        <div className='flex justify-between gap-4'>
-                            <span>{`${day.temp_max}${simbolo}`}</span>
-                            <span>{`${day.temp_min}${simbolo}`}</span>
-                        </div>
-                    </div>
-                ))}
-            </section>
-            <h1 className='text-2xl font-700 h-8 flex items-center pl-[6%]'>Today’s Hightlights</h1>
+            <Convert handleCelcius={handleCelcius} handleFahrenheit={handleFahrenheit} />
+            <ForecastCard pronostico={pronostico} simbolo={simbolo} />
+            <span className='text-2xl font-700 h-8 flex items-center pl-[6%]'>Today’s Hightlights</span>
             <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', placeContent: 'center', placeItems: 'center', gap: '20px' }} className='w-full bg-transparent py-5'>
                 <div className='w-80 h-40 bg-[#1E213A] grid place-content-center place-items-center gap-5 rounded-lg'>
                     <span className='font-500 text-base'>Wind status</span>
@@ -95,16 +82,10 @@ export const Container = ({ units, setUnits, location, setSimbolo, simbolo, icon
                         <span className='flex justify-end'>%</span>
                     </div>
                 </div>
-                <div className='w-80 h-36 bg-[#1E213A] grid place-content-center place-items-center gap-5 rounded-lg'>
-                    <span className='font-500 text-base'>Visibility</span>
-                    <span className='font-700 text-5xl'>{`${visibility} miles`}</span>
-                </div>
-                <div className='w-80 h-36 bg-[#1E213A] grid place-content-center place-items-center gap-5 rounded-lg'>
-                    <span className='font-500 text-base'>Air Pressure</span>
-                    <span className='font-700 text-5xl'>{`${air} mb`}</span>
-                </div>
+                <WeatherCard title='Visibility' value={visibility} unidad='miles' />
+                <WeatherCard title='Air Pressure' value={air} unidad='mb' />
             </section>
-            <h1 className='font-500 text-[14px] text-[#A09FB1] grid place-content-center lg:hidden'>created by username - devChallenges.io</h1>
+            <span className='font-500 text-[14px] text-[#A09FB1] grid place-content-center lg:hidden'>created by username - devChallenges.io</span>
         </main>
     )
 }
